@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Remotion Game Factory</title>
+<style>
+:root{
+  --bg:#f5f8f8;
+  --panel:#ffffff;
+  --panel-2:#f0f6f5;
+  --text:#15302d;
+  --muted:#67827d;
+  --line:#d9e7e4;
+  --brand:#19a58e;
+  --brand-dark:#0d7566;
+  --brand-soft:#dff5f0;
+  --warn:#d89220;
+  --danger:#c94c4c;
+  --ok:#268a64;
+  --shadow:0 12px 32px rgba(23,72,65,.09);
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}
+.sidebar{background:#0f2f2a;color:#fff;padding:22px 16px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;align-items:center;gap:11px;margin:0 4px 26px}
+.logo{width:40px;height:40px;border-radius:13px;background:linear-gradient(135deg,#23c0a4,#0f7768);display:grid;place-items:center;font-weight:800;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.brand strong{font-size:18px;letter-spacing:.1px}
+.brand small{display:block;color:#a9cbc5;margin-top:2px}
+.nav{display:grid;gap:6px}
+.nav button{border:0;background:transparent;color:#d5ebe7;padding:11px 12px;border-radius:11px;text-align:left;display:flex;gap:10px;align-items:center}
+.nav button.active,.nav button:hover{background:rgba(255,255,255,.09);color:#fff}
+.sidebar-footer{margin-top:28px;padding-top:18px;border-top:1px solid rgba(255,255,255,.12);font-size:12px;color:#9fc6bf;line-height:1.5}
+.main{padding:28px;min-width:0}
+.topbar{display:flex;gap:18px;justify-content:space-between;align-items:flex-start;margin-bottom:24px}
+.topbar h1{margin:0;font-size:30px;letter-spacing:-.7px}
+.topbar p{margin:6px 0 0;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn{border:1px solid var(--line);background:#fff;color:var(--text);padding:10px 14px;border-radius:11px;font-weight:700;box-shadow:0 2px 5px rgba(0,0,0,.02)}
+.btn:hover{border-color:#afd7cf}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.primary:hover{background:var(--brand-dark)}
+.btn.danger{color:var(--danger)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.stat{padding:16px}
+.stat span{display:block;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.7px}
+.stat strong{font-size:25px;display:block;margin-top:5px}
+.view{display:none}
+.view.active{display:block}
+.grid-2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:18px}
+.form-card{padding:20px}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 17px}
+.section-title h2{font-size:18px;margin:0}
+.section-title small{color:var(--muted)}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.field{display:grid;gap:7px;min-width:0}
+.field.full{grid-column:1/-1}
+label{font-size:12px;font-weight:800;color:#496762;text-transform:uppercase;letter-spacing:.45px}
+input,select,textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px 12px;color:var(--text);outline:none}
+textarea{min-height:96px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:#65c2b2;box-shadow:0 0 0 3px rgba(25,165,142,.1)}
+.checks{display:flex;gap:8px;flex-wrap:wrap}
+.check{display:flex;align-items:center;gap:7px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px}
+.check input{width:auto}
+.help{font-size:12px;color:var(--muted);line-height:1.45}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{border-radius:999px;padding:7px 10px;background:var(--brand-soft);color:var(--brand-dark);font-size:12px;font-weight:800}
+.divider{height:1px;background:var(--line);margin:20px 0}
+.preview{padding:19px;position:sticky;top:20px;max-height:calc(100vh - 40px);overflow:auto}
+.preview pre{white-space:pre-wrap;word-break:break-word;background:#0d2421;color:#dcf7f1;border-radius:14px;padding:15px;min-height:400px;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.statusbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.status-step{padding:8px 10px;border-radius:10px;background:#edf3f2;color:#617a76;font-size:12px;font-weight:800;border:1px solid var(--line)}
+.status-step.done{background:#e4f6ef;color:var(--ok);border-color:#bfe7d8}
+.status-step.current{background:#fff3dd;color:#946113;border-color:#f1d59f}
+.table-wrap{overflow:auto;border-radius:var(--radius)}
+table{width:100%;border-collapse:collapse;min-width:840px;background:#fff}
+th,td{text-align:left;padding:13px 14px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:top}
+th{background:#f3f7f6;color:#5e7773;text-transform:uppercase;font-size:11px;letter-spacing:.55px}
+tr:hover td{background:#fbfdfd}
+.badge{display:inline-flex;padding:6px 8px;border-radius:999px;font-size:11px;font-weight:800;background:#eef3f2;color:#607a75}
+.badge.ok{background:#e4f6ef;color:#237255}
+.badge.warn{background:#fff3df;color:#966213}
+.badge.dev{background:#e9f3ff;color:#2d6395}
+.empty{padding:45px 20px;text-align:center;color:var(--muted)}
+.history-actions{display:flex;gap:7px}
+.inline{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:8px 12px;font-size:13px}
+.kv div:nth-child(odd){color:var(--muted);font-weight:700}
+.toast{position:fixed;right:22px;bottom:22px;background:#102e29;color:#fff;padding:12px 15px;border-radius:11px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transform:translateY(10px);transition:.2s}
+.toast.show{opacity:1;transform:none}
+.modal{position:fixed;inset:0;background:rgba(8,27,24,.45);display:none;place-items:center;padding:20px;z-index:10}
+.modal.open{display:grid}
+.modal-card{width:min(720px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;border:1px solid var(--line);box-shadow:0 20px 60px rgba(0,0,0,.18);padding:20px}
+@media(max-width:1000px){
+ .app{grid-template-columns:1fr}
+ .sidebar{height:auto;position:static}
+ .nav{grid-template-columns:repeat(4,1fr)}
+ .sidebar-footer{display:none}
+ .main{padding:18px}
+ .grid-2{grid-template-columns:1fr}
+ .preview{position:static;max-height:none}
+ .stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:680px){
+ .topbar{display:grid}
+ .actions{justify-content:flex-start}
+ .form-grid{grid-template-columns:1fr}
+ .field.full{grid-column:auto}
+ .nav{grid-template-columns:repeat(2,1fr)}
+ .stats{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">R</div>
+      <div><strong>Remotion</strong><small>Game Factory</small></div>
+    </div>
+    <div class="nav">
+      <button class="active" data-view="builder">◫ Game Builder</button>
+      <button data-view="history">↺ History</button>
+      <button data-view="library">▦ Registry</button>
+      <button data-view="settings">⚙ Settings</button>
+    </div>
+    <div class="sidebar-footer">
+      Internal tool prototype<br>
+      Structured AI game specification, lifecycle and export.
+    </div>
+  </aside>
+
+  <main class="main">
+    <div id="builder" class="view active">
+      <div class="topbar">
+        <div>
+          <h1>Game specification</h1>
+          <p>Define a Remotion mini-game once, then generate reusable specifications and AI-ready files.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" id="helpBtn">Help / How to use</button>
+          <button class="btn" id="newBtn">New</button>
+          <button class="btn" id="importBtn">Import JSON</button>
+          <button class="btn primary" id="saveBtn">Save version</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <section class="card form-card">
+            <div class="section-title"><h2>1. Identity & clinical intent</h2><small>Why does this game exist?</small></div>
+            <div class="form-grid">
+              <div class="field"><label>Game ID</label><input id="gameId" placeholder="RG-0001"></div>
+              <div class="field"><label>Version</label><input id="version" value="0.1.0"></div>
+              <div class="field"><label>Game name</label><input id="gameName" placeholder="Fruit Reach"></div>
+              <div class="field"><label>Status</label>
+                <select id="status">
+                  <option>Idea</option><option>Specification</option><option>AI Generated</option>
+                  <option>Developer Review</option><option>Edited</option><option>Local Test</option>
+                  <option>Technical Validation</option><option>Clinical Test</option><option>Approved</option>
+                  <option>Hosted</option><option>Remotion Integrated</option><option>Published</option>
+                </select>
+              </div>
+              <div class="field"><label>Primary domain</label>
+                <select id="domain">
+                  <option>Upper-limb rehabilitation</option><option>Lower-limb rehabilitation</option>
+                  <option>Cognitive rehabilitation</option><option>Cognitive-motor</option>
+                  <option>Functional / ADL</option><option>Speech / voice</option>
+                  <option>Balance / coordination</option><option>Pediatric rehabilitation</option>
+                  <option>Assessment</option><option>Other</option>
+                </select>
+              </div>
+              <div class="field"><label>Main profession</label>
+                <select id="profession">
+                  <option>Occupational Therapy</option><option>Physiotherapy</option><option>Speech Therapy</option>
+                  <option>Psychomotricity</option><option>Neuropsychology</option><option>Multidisciplinary</option>
+                </select>
+              </div>
+              <div class="field full"><label>Short description</label><textarea id="description" placeholder="Describe the game in 2–4 sentences."></textarea></div>
+              <div class="field"><label>Primary therapeutic objective</label><input id="primaryObjective" placeholder="Upper-limb reaching"></div>
+              <div class="field"><label>Secondary objectives</label><input id="secondaryObjectives" placeholder="Visual scanning, reaction time"></div>
+              <div class="field"><label>Patient population</label><input id="population" placeholder="Adult neurological rehabilitation"></div>
+              <div class="field"><label>Patient position</label>
+                <select id="patientPosition"><option>Any</option><option>Seated</option><option>Standing</option><option>Seated or standing</option><option>Supine</option></select>
+              </div>
+            </div>
+          </section>
+
+          <section class="card form-card" style="margin-top:18px">
+            <div class="section-title"><h2>2. Gameplay</h2><small>What will the patient actually do?</small></div>
+            <div class="form-grid">
+              <div class="field full"><label>Game concept / mechanics</label><textarea id="mechanics" placeholder="Example: Targets appear at different locations and the patient reaches to select them."></textarea></div>
+              <div class="field"><label>Game type</label>
+                <select id="gameType"><option>Motor</option><option>Cognitive</option><option>Cognitive-motor</option><option>Functional</option><option>Speech</option><option>ADL simulation</option><option>Assessment</option><option>Training</option></select>
+              </div>
+              <div class="field"><label>Session duration (sec)</label><input type="number" id="duration" value="180" min="10"></div>
+              <div class="field"><label>Repetition target</label><input type="number" id="repetitions" value="20" min="0"></div>
+              <div class="field"><label>Difficulty strategy</label>
+                <select id="difficulty"><option>Therapist controlled</option><option>Fixed</option><option>Adaptive when enabled</option></select>
+              </div>
+              <div class="field full"><label>Win / completion condition</label><input id="completionCondition" placeholder="Complete 20 successful targets or reach session duration."></div>
+              <div class="field full"><label>Error / failure behavior</label><input id="errorBehavior" placeholder="Neutral feedback, no punitive message, continue trial."></div>
+              <div class="field full"><label>Visual theme</label><input id="theme" placeholder="Clean clinic-friendly space / forest / supermarket..."></div>
+            </div>
+          </section>
+
+          <section class="card form-card" style="margin-top:18px">
+            <div class="section-title"><h2>3. Input & hardware abstraction</h2><small>Hardware-independent by design</small></div>
+            <div class="form-grid">
+              <div class="field"><label>Primary input</label>
+                <select id="primaryInput">
+                  <option value="touch">Touchscreen / Pointer</option>
+                  <option value="motion">Motion / Body Tracking</option>
+                  <option value="camera">Camera / Computer Vision</option>
+                  <option value="hand">Hand Tracking</option>
+                  <option value="vrcontroller">VR Controller</option>
+                  <option value="vrhand">VR Hand Tracking</option>
+                  <option value="head">Head Tracking</option>
+                  <option value="audio">Microphone Intensity</option>
+                  <option value="speech">Voice / Speech Recognition</option>
+                  <option value="gyro">Gyroscope / Device Motion</option>
+                  <option value="sensor">External Sensor</option>
+                </select>
+              </div>
+              <div class="field"><label>Fallback input</label>
+                <select id="fallbackInput"><option>Mouse / Pointer</option><option>Touch</option><option>Keyboard</option><option>None</option></select>
+              </div>
+              <div class="field full" id="dynamicInputFields"></div>
+            </div>
+          </section>
+
+          <section class="card form-card" style="margin-top:18px">
+            <div class="section-title"><h2>4. Therapist controls</h2><small>Expose clinically meaningful variables</small></div>
+            <div class="checks" id="therapistControls">
+              <label class="check"><input type="checkbox" value="sessionDuration" checked> Session duration</label>
+              <label class="check"><input type="checkbox" value="difficulty" checked> Difficulty</label>
+              <label class="check"><input type="checkbox" value="speed" checked> Speed</label>
+              <label class="check"><input type="checkbox" value="targetSize" checked> Target size</label>
+              <label class="check"><input type="checkbox" value="targetSide"> Left / right / bilateral</label>
+              <label class="check"><input type="checkbox" value="movementAmplitude"> Movement amplitude</label>
+              <label class="check"><input type="checkbox" value="distractors"> Distractors</label>
+              <label class="check"><input type="checkbox" value="cognitiveLoad"> Cognitive load</label>
+              <label class="check"><input type="checkbox" value="assistance"> Assistance</label>
+              <label class="check"><input type="checkbox" value="visualCue"> Visual cues</label>
+              <label class="check"><input type="checkbox" value="audioCue"> Audio cues</label>
+              <label class="check"><input type="checkbox" value="timePressure"> Time pressure</label>
+              <label class="check"><input type="checkbox" value="repetitionGoal" checked> Repetition goal</label>
+            </div>
+            <div class="divider"></div>
+            <div class="field"><label>Additional therapist parameters</label><textarea id="customControls" placeholder="One per line, e.g. target height&#10;reach distance&#10;object category"></textarea></div>
+          </section>
+
+          <section class="card form-card" style="margin-top:18px">
+            <div class="section-title"><h2>5. Metrics & events</h2><small>Objective data, not automatic clinical interpretation</small></div>
+            <label>Standard metrics</label>
+            <div class="checks" id="metrics" style="margin-top:8px">
+              <label class="check"><input type="checkbox" value="duration" checked> Duration</label>
+              <label class="check"><input type="checkbox" value="score" checked> Score</label>
+              <label class="check"><input type="checkbox" value="trials" checked> Trials</label>
+              <label class="check"><input type="checkbox" value="successes" checked> Successes</label>
+              <label class="check"><input type="checkbox" value="errors" checked> Errors</label>
+              <label class="check"><input type="checkbox" value="accuracy" checked> Accuracy</label>
+              <label class="check"><input type="checkbox" value="reactionTime" checked> Reaction time</label>
+              <label class="check"><input type="checkbox" value="repetitions" checked> Repetitions</label>
+              <label class="check"><input type="checkbox" value="pauseCount"> Pauses</label>
+              <label class="check"><input type="checkbox" value="assistanceCount"> Assistance</label>
+            </div>
+            <div class="divider"></div>
+            <div class="form-grid">
+              <div class="field full"><label>Game-specific metrics</label><textarea id="customMetrics" placeholder="One per line: maxReach | number | normalized | Maximum horizontal reaching distance"></textarea></div>
+              <div class="field full"><label>Additional events</label><textarea id="customEvents" placeholder="One per line, e.g. object_dropped&#10;calibration_completed"></textarea></div>
+            </div>
+          </section>
+
+          <section class="card form-card" style="margin-top:18px">
+            <div class="section-title"><h2>6. Development lifecycle</h2><small>Track completion and deployment</small></div>
+            <div class="checks" id="lifecycle">
+              <label class="check"><input type="checkbox" value="specificationCreated" checked> Specification created</label>
+              <label class="check"><input type="checkbox" value="promptGenerated"> Prompt generated</label>
+              <label class="check"><input type="checkbox" value="htmlGenerated"> HTML generated</label>
+              <label class="check"><input type="checkbox" value="developerReviewed"> Developer reviewed</label>
+              <label class="check"><input type="checkbox" value="edited"> Edited</label>
+              <label class="check"><input type="checkbox" value="localTest"> Local test</label>
+              <label class="check"><input type="checkbox" value="technicalValidation"> Technical validation</label>
+              <label class="check"><input type="checkbox" value="clinicalTest"> Clinical test</label>
+              <label class="check"><input type="checkbox" value="approved"> Approved</label>
+              <label class="check"><input type="checkbox" value="hosted"> Hosted</label>
+              <label class="check"><input type="checkbox" value="integratedIntoRemotion"> Remotion integrated</label>
+              <label class="check"><input type="checkbox" value="published"> Published</label>
+            </div>
+            <div class="divider"></div>
+            <div class="form-grid">
+              <div class="field"><label>Developer / owner</label><input id="owner" placeholder="Ahmed / Dhia / ..."></div>
+              <div class="field"><label>Hosting URL</label><input id="hostingUrl" placeholder="https://..."></div>
+              <div class="field"><label>Repository / source URL</label><input id="repoUrl" placeholder="https://github.com/..."></div>
+              <div class="field"><label>Remotion module ID</label><input id="moduleId" placeholder="Optional"></div>
+              <div class="field full"><label>Development notes</label><textarea id="devNotes" placeholder="Open issues, changes requested, test notes..."></textarea></div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="card preview">
+          <div class="section-title"><h2>Generated package</h2><small>Live preview</small></div>
+          <div class="statusbar" id="statusbar"></div>
+          <div class="actions" style="justify-content:flex-start;margin-bottom:12px">
+            <button class="btn primary" id="exportJson">Export JSON</button>
+            <button class="btn" id="exportDoc">Export DOC</button>
+            <button class="btn" id="exportPrompt">Export AI Prompt</button>
+            <button class="btn" id="copyPrompt">Copy Prompt</button>
+          </div>
+          <pre id="previewText"></pre>
+        </aside>
+      </div>
+    </div>
+
+    <div id="history" class="view">
+      <div class="topbar"><div><h1>Version history</h1><p>Every saved version is kept locally in this browser.</p></div></div>
+      <div class="card table-wrap"><table><thead><tr><th>Game</th><th>Version</th><th>Status</th><th>Saved</th><th>Owner</th><th>Actions</th></tr></thead><tbody id="historyBody"></tbody></table><div id="historyEmpty" class="empty">No saved versions yet.</div></div>
+    </div>
+
+    <div id="library" class="view">
+      <div class="topbar"><div><h1>Game registry</h1><p>Latest saved version of each game.</p></div></div>
+      <div class="stats">
+        <div class="card stat"><span>Total games</span><strong id="statTotal">0</strong></div>
+        <div class="card stat"><span>In development</span><strong id="statDev">0</strong></div>
+        <div class="card stat"><span>Testing</span><strong id="statTest">0</strong></div>
+        <div class="card stat"><span>Hosted</span><strong id="statHosted">0</strong></div>
+        <div class="card stat"><span>Published</span><strong id="statPublished">0</strong></div>
+      </div>
+      <div class="card table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Domain</th><th>Input</th><th>Status</th><th>Version</th><th>Last update</th><th>Action</th></tr></thead><tbody id="libraryBody"></tbody></table><div id="libraryEmpty" class="empty">No games saved yet.</div></div>
+    </div>
+
+    <div id="settings" class="view">
+      <div class="topbar"><div><h1>Factory settings</h1><p>Customize defaults used in generated specifications.</p></div></div>
+      <div class="card form-card">
+        <div class="form-grid">
+          <div class="field"><label>Schema version</label><input id="schemaVersion" value="1.0"></div>
+          <div class="field"><label>Organization</label><input id="organization" value="Remotion"></div>
+          <div class="field full"><label>Global AI instruction suffix</label><textarea id="globalSuffix" placeholder="Optional instructions automatically appended to every generated AI prompt."></textarea></div>
+        </div>
+        <div class="divider"></div>
+        <button class="btn primary" id="saveSettings">Save settings</button>
+        <button class="btn danger" id="clearAll">Clear local database</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<input type="file" id="fileImport" accept=".json,application/json" hidden>
+
+<div class="modal" id="helpModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="section-title">
+      <div>
+        <h2>How to use Remotion Game Factory</h2>
+        <small>From game idea to AI-ready specification and production tracking</small>
+      </div>
+      <button class="btn" id="closeHelpBtn">Close</button>
+    </div>
+
+    <div class="pills" style="margin-bottom:18px">
+      <span class="pill">1. Define</span>
+      <span class="pill">2. Configure</span>
+      <span class="pill">3. Export</span>
+      <span class="pill">4. Generate</span>
+      <span class="pill">5. Track</span>
+    </div>
+
+    <h3>1. Create a game specification</h3>
+    <p class="help">
+      Start in <strong>Game Builder</strong>. Give the game a name, clinical domain, therapeutic objective,
+      patient population and a short description. The Game ID is generated automatically if you leave it empty.
+    </p>
+
+    <h3>2. Describe the gameplay</h3>
+    <p class="help">
+      Explain what the patient does, the session duration, repetition target, difficulty strategy,
+      completion rule and feedback behavior. Keep the game mechanics clinically meaningful and simple enough
+      for the selected population.
+    </p>
+
+    <h3>3. Select the input modality</h3>
+    <p class="help">
+      Choose Touchscreen, Motion Tracking, Camera, Hand Tracking, VR, Head Tracking, Audio, Speech,
+      Gyroscope or External Sensor. Extra fields appear automatically according to the selected input.
+      Use a fallback input such as Mouse when possible so the game can be tested without the final hardware.
+    </p>
+
+    <h3>4. Define therapist controls</h3>
+    <p class="help">
+      Select the parameters the therapist should be able to configure: speed, target size, side,
+      movement amplitude, distractors, cognitive load, assistance, cues, time pressure and repetition goal.
+      Add custom parameters when the activity needs something specific.
+    </p>
+
+    <h3>5. Select metrics and events</h3>
+    <p class="help">
+      Choose the standard Remotion metrics and add game-specific metrics using the format:
+      <strong>metricId | type | unit | description</strong>.
+      Example: <code>maxReach | number | normalized | Maximum horizontal reaching distance</code>.
+    </p>
+
+    <h3>6. Export the game package</h3>
+    <p class="help">
+      Use <strong>Export JSON</strong> for the machine-readable source of truth,
+      <strong>Export DOC</strong> for a readable specification,
+      and <strong>Export AI Prompt</strong> to generate the actual game with an AI coding tool.
+      You can also copy the prompt directly.
+    </p>
+
+    <h3>7. Save versions and track development</h3>
+    <p class="help">
+      Click <strong>Save version</strong> whenever the specification changes. The History page keeps every saved
+      version in this browser. The Registry page shows the latest saved version of each game.
+      Update the lifecycle checkboxes as the game progresses through generation, review, testing, hosting,
+      Remotion integration and publication.
+    </p>
+
+    <h3>8. Import an existing JSON</h3>
+    <p class="help">
+      Click <strong>Import JSON</strong> and select a Game Factory JSON file. The dashboard will repopulate
+      the form so you can edit, version or regenerate the AI prompt.
+    </p>
+
+    <div style="background:var(--brand-soft);padding:14px;border-radius:12px;margin-top:18px">
+      <strong>Recommended workflow</strong>
+      <div class="help" style="margin-top:6px">
+        Idea → Game Factory specification → Save version → Export AI Prompt → Generate HTML →
+        Developer review → Local test → Clinical test → Host → Integrate into Remotion → Publish.
+      </div>
+    </div>
+
+    <div style="background:#fff7e8;padding:14px;border-radius:12px;margin-top:12px">
+      <strong>Important</strong>
+      <div class="help" style="margin-top:6px">
+        The JSON should remain the canonical specification. When the game changes, update the Game Factory record
+        and save a new version instead of silently modifying the implementation.
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const LS_HISTORY='remotion_game_factory_history_v1';
+const LS_SETTINGS='remotion_game_factory_settings_v1';
+
+const baseEvents=['session_started','game_started','trial_started','target_presented','response','success','error','repetition','difficulty_changed','pause','resume','game_completed','session_completed'];
+
+const inputModules={
+ touch:{label:'Touchscreen / Pointer',html:`
+   <div class="form-grid">
+    <div class="field"><label>Supported gestures</label><input id="inputGestures" value="tap, press, drag, release"></div>
+    <div class="field"><label>Minimum target size</label><input id="minTargetSize" value="configurable"></div>
+    <div class="field full help">Use Pointer Events, no hover dependency, normalized coordinates where useful, and mouse fallback for testing.</div>
+   </div>`},
+ motion:{label:'Motion / Body Tracking',html:`
+   <div class="form-grid">
+    <div class="field"><label>Tracked body part(s)</label><input id="trackedParts" placeholder="left wrist, right wrist, head..."></div>
+    <div class="field"><label>Coordinates</label><select id="motionCoords"><option>Normalized 2D</option><option>Normalized 3D</option><option>Both</option></select></div>
+    <div class="field"><label>Calibration</label><select id="calibration"><option>Required</option><option>Optional</option><option>Not required</option></select></div>
+    <div class="field"><label>Confidence threshold</label><input id="confidence" value="0.6"></div>
+    <div class="field full help">Game consumes Remotion semantic pose events; tracking hardware remains outside the game.</div>
+   </div>`},
+ camera:{label:'Camera / Computer Vision',html:`
+   <div class="form-grid">
+    <div class="field"><label>Detection purpose</label><input id="cameraPurpose" placeholder="hand position / pose / object detection"></div>
+    <div class="field"><label>Camera view</label><select id="cameraView"><option>Front-facing</option><option>Rear-facing</option><option>External camera</option></select></div>
+    <div class="field full help">Prefer a Remotion vision adapter. Do not couple gameplay to one CV library unless explicitly required.</div>
+   </div>`},
+ hand:{label:'Hand Tracking',html:`
+   <div class="form-grid">
+    <div class="field"><label>Hand actions</label><input id="handActions" value="point, pinch, grab, release"></div>
+    <div class="field"><label>Hands</label><select id="handSides"><option>Both</option><option>Left</option><option>Right</option></select></div>
+    <div class="field full help">Handle occlusion, tracking loss and hysteresis. Prefer semantic actions over vendor-specific APIs.</div>
+   </div>`},
+ vrcontroller:{label:'VR Controller',html:`
+   <div class="form-grid">
+    <div class="field"><label>XR actions</label><input id="xrActions" value="select, grab, release, squeeze"></div>
+    <div class="field"><label>VR mode</label><select id="vrMode"><option>Seated or standing</option><option>Seated</option><option>Standing</option></select></div>
+    <div class="field"><label>Locomotion</label><select id="locomotion"><option>None</option><option>Teleport</option><option>Physical</option></select></div>
+    <div class="field full help">No Pico/Meta/HTC button mappings inside game logic; use Remotion XR semantic input.</div>
+   </div>`},
+ vrhand:{label:'VR Hand Tracking',html:`
+   <div class="form-grid">
+    <div class="field"><label>XR hand actions</label><input id="xrHandActions" value="point, pinch, grab, release, touch"></div>
+    <div class="field"><label>VR mode</label><select id="vrHandMode"><option>Seated or standing</option><option>Seated</option><option>Standing</option></select></div>
+    <div class="field full help">Account for occlusion and false gesture detection; provide visual hand-recognition feedback.</div>
+   </div>`},
+ head:{label:'Head Tracking',html:`
+   <div class="form-grid">
+    <div class="field"><label>Head signals</label><input id="headSignals" value="yaw, pitch, roll"></div>
+    <div class="field"><label>Recenter</label><select id="recenter"><option>Enabled</option><option>Disabled</option></select></div>
+    <div class="field full help">Use calibration, dead zone and configurable sensitivity. Do not impose excessive cervical motion.</div>
+   </div>`},
+ audio:{label:'Microphone Intensity',html:`
+   <div class="form-grid">
+    <div class="field"><label>Calibration</label><select id="audioCalibration"><option>Required</option><option>Optional</option></select></div>
+    <div class="field"><label>Signal</label><input id="audioSignal" value="normalized audio level 0.0–1.0"></div>
+    <div class="field full help">Do not describe values as clinical dB SPL unless a validated measurement system is used.</div>
+   </div>`},
+ speech:{label:'Voice / Speech Recognition',html:`
+   <div class="form-grid">
+    <div class="field"><label>Expected commands / vocabulary</label><input id="speechVocabulary" placeholder="START, STOP, LEFT, APPLE..."></div>
+    <div class="field"><label>Language</label><input id="speechLanguage" value="configurable"></div>
+    <div class="field full help">Handle confidence, timeout and unrecognized speech; offer visual alternatives when appropriate.</div>
+   </div>`},
+ gyro:{label:'Gyroscope / Device Motion',html:`
+   <div class="form-grid">
+    <div class="field"><label>Signals</label><input id="gyroSignals" value="orientation, tilt"></div>
+    <div class="field"><label>Calibration</label><select id="gyroCalibration"><option>Required</option><option>Optional</option></select></div>
+    <div class="field full help">Normalize device motion and support recentering and sensitivity configuration.</div>
+   </div>`},
+ sensor:{label:'External Sensor',html:`
+   <div class="form-grid">
+    <div class="field"><label>Sensor name / type</label><input id="sensorType" placeholder="Custom motion sensor"></div>
+    <div class="field"><label>Semantic signal</label><input id="sensorSignal" placeholder="value / event exposed to game"></div>
+    <div class="field full help">Hardware communication should be handled by a Remotion adapter; the game consumes normalized events/data.</div>
+   </div>`}
+};
+
+function toast(msg){ const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800); }
+function checkedValues(id){return [...document.querySelectorAll(`#${id} input[type=checkbox]:checked`)].map(x=>x.value)}
+function splitLines(v){return v.split('\n').map(x=>x.trim()).filter(Boolean)}
+function inputExtra(){
+ const ids=['inputGestures','minTargetSize','trackedParts','motionCoords','calibration','confidence','cameraPurpose','cameraView','handActions','handSides','xrActions','vrMode','locomotion','xrHandActions','vrHandMode','headSignals','recenter','audioCalibration','audioSignal','speechVocabulary','speechLanguage','gyroSignals','gyroCalibration','sensorType','sensorSignal'];
+ const out={}; ids.forEach(id=>{const el=$(id);if(el)out[id]=el.value}); return out;
+}
+function getSettings(){try{return JSON.parse(localStorage.getItem(LS_SETTINGS))||{}}catch{return {}}}
+function collect(){
+ const settings=getSettings();
+ const inputKey=$('primaryInput').value;
+ const customMetricRows=splitLines($('customMetrics').value).map(line=>{
+   const [id,type,unit,description]=line.split('|').map(s=>(s||'').trim());
+   return {id:id||line,type:type||'number',unit:unit||'',description:description||''};
+ });
+ const lifecycle={}; [...document.querySelectorAll('#lifecycle input[type=checkbox]')].forEach(x=>lifecycle[x.value]=x.checked);
+ const now=new Date().toISOString();
+ return {
+  schemaVersion:settings.schemaVersion||$('schemaVersion')?.value||'1.0',
+  generatedAt:now,
+  organization:settings.organization||'Remotion',
+  game:{
+   id:$('gameId').value.trim(),
+   name:$('gameName').value.trim(),
+   version:$('version').value.trim()||'0.1.0',
+   status:$('status').value,
+   description:$('description').value.trim(),
+   type:$('gameType').value,
+   theme:$('theme').value.trim()
+  },
+  clinical:{
+   domain:$('domain').value,
+   profession:$('profession').value,
+   population:$('population').value.trim(),
+   patientPosition:$('patientPosition').value,
+   primaryObjective:$('primaryObjective').value.trim(),
+   secondaryObjectives:$('secondaryObjectives').value.split(',').map(x=>x.trim()).filter(Boolean)
+  },
+  gameplay:{
+   mechanics:$('mechanics').value.trim(),
+   sessionDurationSec:Number($('duration').value||0),
+   repetitionTarget:Number($('repetitions').value||0),
+   difficultyStrategy:$('difficulty').value,
+   completionCondition:$('completionCondition').value.trim(),
+   errorBehavior:$('errorBehavior').value.trim()
+  },
+  input:{
+   primary:inputKey,
+   primaryLabel:inputModules[inputKey].label,
+   fallback:$('fallbackInput').value,
+   configuration:inputExtra()
+  },
+  therapistControls:{
+   standard:checkedValues('therapistControls'),
+   custom:splitLines($('customControls').value)
+  },
+  data:{
+   metrics:{
+    standard:checkedValues('metrics'),
+    custom:customMetricRows
+   },
+   events:[...new Set([...baseEvents,...splitLines($('customEvents').value)])]
+  },
+  development:{
+   lifecycle,
+   owner:$('owner').value.trim(),
+   hostingUrl:$('hostingUrl').value.trim(),
+   repositoryUrl:$('repoUrl').value.trim(),
+   remotionModuleId:$('moduleId').value.trim(),
+   notes:$('devNotes').value.trim()
+  }
+ };
+}
+function sanitizeName(s){return (s||'remotion-game').replace(/[^a-z0-9-_]+/gi,'-').replace(/^-+|-+$/g,'')||'remotion-game'}
+function createPrompt(d){
+ const suffix=getSettings().globalSuffix||'';
+ return `You are a senior interactive rehabilitation game developer working for Remotion.
+
+Create a Remotion-compatible HTML/CSS/JavaScript therapeutic mini-game from the following approved specification.
+
+CORE RULES
+- Treat the JSON specification below as the source of truth.
+- Build a modular therapeutic serious game, not a generic entertainment game.
+- Keep gameplay logic separate from rendering, input processing, configuration, analytics and Remotion communication.
+- Do not implement authentication, database access, patient identity management, API credentials or direct Remotion server calls inside the game.
+- External communication must use a Remotion bridge/adapter abstraction.
+- The game must run with mock/fallback data outside Remotion for development.
+- Implement lifecycle methods: init(context), configure(config), start(), pause(), resume(), reset(), end(), destroy().
+- Use responsive layout and normalized coordinates. Do not assume 1920×1080.
+- Support viewport resize during runtime.
+- Prefer vanilla HTML/CSS/JavaScript for standard 2D games.
+- Avoid external CDN dependencies unless explicitly authorized.
+- Keep therapist controls clinically meaningful and externally configurable.
+- Record objective metrics/events only; do not invent clinical interpretation.
+- Do not store sensitive patient data in localStorage or URLs.
+- Fail gracefully if a sensor/input is unavailable.
+- Use neutral, encouraging patient feedback.
+- Audio must not be the only carrier of critical information.
+- Include developer-friendly mock input for testing when clinically appropriate.
+
+INPUT-SPECIFIC REQUIREMENT
+Primary input: ${d.input.primaryLabel}
+Fallback: ${d.input.fallback}
+Configuration: ${JSON.stringify(d.input.configuration,null,2)}
+
+Before coding, validate the specification for contradictions or missing implementation-critical information. If information is non-critical, make conservative defaults and document them.
+
+DELIVERABLES
+1. index.html (or clearly separated HTML/CSS/JS if more appropriate)
+2. Remotion bridge/mock adapter
+3. Config object matching therapist controls
+4. Structured event + metric output
+5. Responsive behavior
+6. Error/loading/input-unavailable states
+7. A short README section documenting integration and testing
+
+APPROVED GAME SPECIFICATION
+${JSON.stringify(d,null,2)}
+${suffix ? '\nADDITIONAL FACTORY INSTRUCTIONS\n'+suffix : ''}`;
+}
+function createDocHtml(d){
+ const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ const li=a=>(a||[]).map(x=>`<li>${esc(typeof x==='string'?x:JSON.stringify(x))}</li>`).join('');
+ return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(d.game.name)} - Remotion Game Specification</title>
+ <style>body{font-family:Arial,sans-serif;line-height:1.5;color:#15302d;margin:40px}h1{color:#0d7566}h2{border-bottom:1px solid #d9e7e4;padding-bottom:6px;margin-top:28px}table{border-collapse:collapse;width:100%}td{border:1px solid #d9e7e4;padding:8px;vertical-align:top}td:first-child{width:28%;font-weight:bold;background:#f0f6f5}pre{white-space:pre-wrap;background:#f4f7f7;padding:12px;border:1px solid #d9e7e4}</style></head><body>
+ <h1>Remotion Game Specification</h1>
+ <table>
+ <tr><td>Game ID</td><td>${esc(d.game.id)}</td></tr>
+ <tr><td>Name</td><td>${esc(d.game.name)}</td></tr>
+ <tr><td>Version</td><td>${esc(d.game.version)}</td></tr>
+ <tr><td>Status</td><td>${esc(d.game.status)}</td></tr>
+ </table>
+ <h2>Clinical intent</h2><table>
+ <tr><td>Domain</td><td>${esc(d.clinical.domain)}</td></tr>
+ <tr><td>Profession</td><td>${esc(d.clinical.profession)}</td></tr>
+ <tr><td>Population</td><td>${esc(d.clinical.population)}</td></tr>
+ <tr><td>Position</td><td>${esc(d.clinical.patientPosition)}</td></tr>
+ <tr><td>Primary objective</td><td>${esc(d.clinical.primaryObjective)}</td></tr>
+ <tr><td>Secondary objectives</td><td><ul>${li(d.clinical.secondaryObjectives)}</ul></td></tr>
+ </table>
+ <h2>Game definition</h2><p>${esc(d.game.description)}</p><p><strong>Mechanics:</strong> ${esc(d.gameplay.mechanics)}</p>
+ <p><strong>Completion:</strong> ${esc(d.gameplay.completionCondition)}</p><p><strong>Error behavior:</strong> ${esc(d.gameplay.errorBehavior)}</p>
+ <h2>Input</h2><p><strong>Primary:</strong> ${esc(d.input.primaryLabel)}<br><strong>Fallback:</strong> ${esc(d.input.fallback)}</p><pre>${esc(JSON.stringify(d.input.configuration,null,2))}</pre>
+ <h2>Therapist controls</h2><ul>${li(d.therapistControls.standard.concat(d.therapistControls.custom))}</ul>
+ <h2>Metrics</h2><ul>${li(d.data.metrics.standard)}${li(d.data.metrics.custom.map(x=>`${x.id} (${x.type}${x.unit?', '+x.unit:''})${x.description?': '+x.description:''}`))}</ul>
+ <h2>Events</h2><ul>${li(d.data.events)}</ul>
+ <h2>Development lifecycle</h2><pre>${esc(JSON.stringify(d.development,null,2))}</pre>
+ <h2>Machine-readable specification</h2><pre>${esc(JSON.stringify(d,null,2))}</pre>
+ </body></html>`;
+}
+function download(filename,content,type){
+ const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+function updatePreview(){
+ const d=collect(); $('previewText').textContent=JSON.stringify(d,null,2);
+ const steps=['specificationCreated','promptGenerated','htmlGenerated','developerReviewed','localTest','technicalValidation','clinicalTest','approved','hosted','integratedIntoRemotion','published'];
+ const labels={specificationCreated:'Spec',promptGenerated:'Prompt',htmlGenerated:'HTML',developerReviewed:'Review',localTest:'Local test',technicalValidation:'Tech valid.',clinicalTest:'Clinical test',approved:'Approved',hosted:'Hosted',integratedIntoRemotion:'Integrated',published:'Published'};
+ $('statusbar').innerHTML=steps.map(s=>`<span class="status-step ${d.development.lifecycle[s]?'done':''}">${d.development.lifecycle[s]?'✓ ':''}${labels[s]}</span>`).join('');
+}
+function renderInputFields(){
+ const key=$('primaryInput').value;$('dynamicInputFields').innerHTML=inputModules[key].html;
+ $('dynamicInputFields').querySelectorAll('input,select,textarea').forEach(el=>el.addEventListener('input',updatePreview));
+ updatePreview();
+}
+function ensureId(){
+ if(!$('gameId').value.trim()){
+   const hist=getHistory();const ids=hist.map(x=>Number((x.data.game.id.match(/\d+/)||['0'])[0])).filter(Number.isFinite);
+   $('gameId').value='RG-'+String((Math.max(0,...ids)+1)).padStart(4,'0');
+ }
+}
+function getHistory(){try{return JSON.parse(localStorage.getItem(LS_HISTORY))||[]}catch{return []}}
+function setHistory(h){localStorage.setItem(LS_HISTORY,JSON.stringify(h))}
+function saveVersion(){
+ ensureId();const d=collect();if(!d.game.name){toast('Add a game name first');return}
+ const h=getHistory();h.unshift({savedAt:new Date().toISOString(),data:d});setHistory(h);toast('Version saved');renderHistory();renderLibrary();updatePreview();
+}
+function loadData(d){
+ $('gameId').value=d.game?.id||'';$('gameName').value=d.game?.name||'';$('version').value=d.game?.version||'0.1.0';$('status').value=d.game?.status||'Idea';$('description').value=d.game?.description||'';$('gameType').value=d.game?.type||'Motor';$('theme').value=d.game?.theme||'';
+ $('domain').value=d.clinical?.domain||$('domain').options[0].value;$('profession').value=d.clinical?.profession||'Occupational Therapy';$('population').value=d.clinical?.population||'';$('patientPosition').value=d.clinical?.patientPosition||'Any';$('primaryObjective').value=d.clinical?.primaryObjective||'';$('secondaryObjectives').value=(d.clinical?.secondaryObjectives||[]).join(', ');
+ $('mechanics').value=d.gameplay?.mechanics||'';$('duration').value=d.gameplay?.sessionDurationSec??180;$('repetitions').value=d.gameplay?.repetitionTarget??20;$('difficulty').value=d.gameplay?.difficultyStrategy||'Therapist controlled';$('completionCondition').value=d.gameplay?.completionCondition||'';$('errorBehavior').value=d.gameplay?.errorBehavior||'';
+ $('primaryInput').value=d.input?.primary||'touch';$('fallbackInput').value=d.input?.fallback||'Mouse / Pointer';renderInputFields();setTimeout(()=>{Object.entries(d.input?.configuration||{}).forEach(([k,v])=>{if($(k))$(k).value=v});updatePreview()},0);
+ const setChecks=(id,vals)=>document.querySelectorAll(`#${id} input[type=checkbox]`).forEach(x=>x.checked=(vals||[]).includes(x.value));
+ setChecks('therapistControls',d.therapistControls?.standard||[]);$('customControls').value=(d.therapistControls?.custom||[]).join('\n');
+ setChecks('metrics',d.data?.metrics?.standard||[]);$('customMetrics').value=(d.data?.metrics?.custom||[]).map(x=>[x.id,x.type,x.unit,x.description].join(' | ')).join('\n');
+ const customE=(d.data?.events||[]).filter(x=>!baseEvents.includes(x));$('customEvents').value=customE.join('\n');
+ document.querySelectorAll('#lifecycle input[type=checkbox]').forEach(x=>x.checked=!!d.development?.lifecycle?.[x.value]);
+ $('owner').value=d.development?.owner||'';$('hostingUrl').value=d.development?.hostingUrl||'';$('repoUrl').value=d.development?.repositoryUrl||'';$('moduleId').value=d.development?.remotionModuleId||'';$('devNotes').value=d.development?.notes||'';
+ updatePreview();switchView('builder');
+}
+function renderHistory(){
+ const h=getHistory();$('historyEmpty').style.display=h.length?'none':'block';
+ $('historyBody').innerHTML=h.map((x,i)=>`<tr>
+  <td><strong>${escapeHtml(x.data.game.name)}</strong><br><span class="help">${escapeHtml(x.data.game.id)}</span></td>
+  <td>${escapeHtml(x.data.game.version)}</td><td><span class="badge">${escapeHtml(x.data.game.status)}</span></td>
+  <td>${new Date(x.savedAt).toLocaleString()}</td><td>${escapeHtml(x.data.development.owner||'—')}</td>
+  <td class="history-actions"><button class="btn" onclick="loadHistory(${i})">Load</button><button class="btn danger" onclick="deleteHistory(${i})">Delete</button></td></tr>`).join('');
+}
+window.loadHistory=i=>{const h=getHistory();if(h[i])loadData(h[i].data)}
+window.deleteHistory=i=>{const h=getHistory();h.splice(i,1);setHistory(h);renderHistory();renderLibrary();toast('Version deleted')}
+function renderLibrary(){
+ const h=getHistory(), map=new Map();
+ h.forEach(x=>{if(!map.has(x.data.game.id))map.set(x.data.game.id,x)});
+ const rows=[...map.values()];
+ $('libraryEmpty').style.display=rows.length?'none':'block';
+ $('libraryBody').innerHTML=rows.map((x)=>{const d=x.data;return `<tr>
+   <td>${escapeHtml(d.game.id)}</td><td><strong>${escapeHtml(d.game.name)}</strong></td><td>${escapeHtml(d.clinical.domain)}</td>
+   <td>${escapeHtml(d.input.primaryLabel)}</td><td><span class="badge ${d.game.status==='Published'?'ok':d.game.status.includes('Test')?'warn':'dev'}">${escapeHtml(d.game.status)}</span></td>
+   <td>${escapeHtml(d.game.version)}</td><td>${new Date(x.savedAt).toLocaleDateString()}</td>
+   <td><button class="btn" onclick='loadRegistry(${JSON.stringify(d.game.id)})'>Open</button></td></tr>`}).join('');
+ window.registryCache=map;
+ $('statTotal').textContent=rows.length;
+ $('statDev').textContent=rows.filter(x=>['Idea','Specification','AI Generated','Developer Review','Edited'].includes(x.data.game.status)).length;
+ $('statTest').textContent=rows.filter(x=>x.data.game.status.includes('Test')||x.data.game.status==='Technical Validation'||x.data.game.status==='Clinical Test').length;
+ $('statHosted').textContent=rows.filter(x=>x.data.development.lifecycle.hosted).length;
+ $('statPublished').textContent=rows.filter(x=>x.data.development.lifecycle.published||x.data.game.status==='Published').length;
+}
+window.loadRegistry=id=>{const x=window.registryCache?.get(id);if(x)loadData(x.data)}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function resetForm(){
+ document.querySelectorAll('#builder input,#builder textarea').forEach(el=>{if(el.type==='checkbox')el.checked=false;else el.value=''});
+ $('version').value='0.1.0';$('status').value='Idea';$('duration').value=180;$('repetitions').value=20;$('primaryInput').value='touch';$('fallbackInput').value='Mouse / Pointer';
+ ['sessionDuration','difficulty','speed','targetSize','repetitionGoal'].forEach(v=>{const x=document.querySelector(`#therapistControls input[value="${v}"]`);if(x)x.checked=true});
+ ['duration','score','trials','successes','errors','accuracy','reactionTime','repetitions'].forEach(v=>{const x=document.querySelector(`#metrics input[value="${v}"]`);if(x)x.checked=true});
+ const sc=document.querySelector('#lifecycle input[value="specificationCreated"]');if(sc)sc.checked=true;
+ ensureId();renderInputFields();updatePreview();
+}
+function switchView(id){
+ document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));
+ if(id==='history')renderHistory();if(id==='library')renderLibrary();
+}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+document.querySelectorAll('#builder input,#builder select,#builder textarea').forEach(el=>el.addEventListener('input',updatePreview));
+$('primaryInput').addEventListener('change',renderInputFields);
+
+$('helpBtn').onclick=()=>{ $('helpModal').classList.add('open'); $('helpModal').setAttribute('aria-hidden','false'); };
+$('closeHelpBtn').onclick=()=>{ $('helpModal').classList.remove('open'); $('helpModal').setAttribute('aria-hidden','true'); };
+$('helpModal').addEventListener('click',e=>{ if(e.target===$('helpModal')) $('closeHelpBtn').click(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && $('helpModal').classList.contains('open')) $('closeHelpBtn').click(); });
+
+$('saveBtn').onclick=saveVersion;
+$('newBtn').onclick=()=>{resetForm();toast('New game specification')};
+$('exportJson').onclick=()=>{ensureId();const d=collect();download(`${sanitizeName(d.game.id+'-'+d.game.name)}-game-spec.json`,JSON.stringify(d,null,2),'application/json')};
+$('exportDoc').onclick=()=>{ensureId();const d=collect();download(`${sanitizeName(d.game.id+'-'+d.game.name)}-spec.doc`,createDocHtml(d),'application/msword')};
+$('exportPrompt').onclick=()=>{ensureId();const d=collect();download(`${sanitizeName(d.game.id+'-'+d.game.name)}-AI-PROMPT.txt`,createPrompt(d),'text/plain')};
+$('copyPrompt').onclick=async()=>{try{await navigator.clipboard.writeText(createPrompt(collect()));toast('AI prompt copied')}catch{toast('Clipboard unavailable')}};
+$('importBtn').onclick=()=>$('fileImport').click();
+$('fileImport').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());loadData(d);toast('JSON imported')}catch{toast('Invalid JSON file')}e.target.value=''};
+$('saveSettings').onclick=()=>{const s={schemaVersion:$('schemaVersion').value||'1.0',organization:$('organization').value||'Remotion',globalSuffix:$('globalSuffix').value};localStorage.setItem(LS_SETTINGS,JSON.stringify(s));toast('Settings saved');updatePreview()};
+$('clearAll').onclick=()=>{if(confirm('Delete all locally saved Game Factory history and settings?')){localStorage.removeItem(LS_HISTORY);localStorage.removeItem(LS_SETTINGS);renderHistory();renderLibrary();toast('Local database cleared')}};
+function loadSettingsUI(){const s=getSettings();$('schemaVersion').value=s.schemaVersion||'1.0';$('organization').value=s.organization||'Remotion';$('globalSuffix').value=s.globalSuffix||''}
+loadSettingsUI();renderInputFields();ensureId();updatePreview();renderHistory();renderLibrary();
+</script>
+</body>
+</html>

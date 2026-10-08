@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-10-08T15:30:00.000Z",
+  "organization": "Remotion",
+  "game": {
+    "id": "RG-0001",
+    "name": "Fruit Reach",
+    "version": "0.1.0",
+    "status": "Specification",
+    "description": "A reaching activity where the patient moves the tracked hand toward fruit targets appearing at different screen positions. The activity combines upper-limb movement, visual scanning and reaction time while keeping therapist control over target placement and difficulty.",
+    "type": "Cognitive-motor",
+    "theme": "Clean colorful fruit market with limited visual clutter"
+  },
+  "clinical": {
+    "domain": "Upper-limb rehabilitation",
+    "profession": "Occupational Therapy",
+    "population": "Adult neurological rehabilitation",
+    "patientPosition": "Seated or standing",
+    "primaryObjective": "Upper-limb reaching",
+    "secondaryObjectives": [
+      "Visual scanning",
+      "Reaction time",
+      "Target-directed movement",
+      "Sustained engagement"
+    ]
+  },
+  "gameplay": {
+    "mechanics": "Fruit targets appear one at a time or in small groups at configurable normalized positions. The patient moves the tracked hand toward the active target and holds inside the target zone long enough to validate the reach. Successful targets disappear and the next target is presented.",
+    "sessionDurationSec": 180,
+    "repetitionTarget": 20,
+    "difficultyStrategy": "Therapist controlled",
+    "completionCondition": "Complete 20 successful reaches or finish the configured session duration.",
+    "errorBehavior": "Use neutral visual feedback if the target is missed. Do not punish or reset progress. Continue with the next attempt according to therapist settings."
+  },
+  "input": {
+    "primary": "motion",
+    "primaryLabel": "Motion / Body Tracking",
+    "fallback": "Mouse / Pointer",
+    "configuration": {
+      "trackedParts": "left wrist, right wrist",
+      "motionCoords": "Normalized 2D",
+      "calibration": "Required",
+      "confidence": "0.6"
+    }
+  },
+  "therapistControls": {
+    "standard": [
+      "sessionDuration",
+      "difficulty",
+      "speed",
+      "targetSize",
+      "targetSide",
+      "movementAmplitude",
+      "assistance",
+      "visualCue",
+      "repetitionGoal"
+    ],
+    "custom": [
+      "target height",
+      "horizontal reach range",
+      "hold duration before validation"
+    ]
+  },
+  "data": {
+    "metrics": {
+      "standard": [
+        "duration",
+        "score",
+        "trials",
+        "successes",
+        "errors",
+        "accuracy",
+        "reactionTime",
+        "repetitions"
+      ],
+      "custom": [
+        {
+          "id": "maxReach",
+          "type": "number",
+          "unit": "normalized",
+          "description": "Maximum horizontal normalized reach position recorded during the session."
+        },
+        {
+          "id": "leftRightDistribution",
+          "type": "object",
+          "unit": "",
+          "description": "Number of validated target interactions performed on the left and right side."
+        },
+        {
+          "id": "averageMovementDuration",
+          "type": "number",
+          "unit": "ms",
+          "description": "Average duration between movement initiation and successful target validation."
+        }
+      ]
+    },
+    "events": [
+      "session_started",
+      "game_started",
+      "trial_started",
+      "target_presented",
+      "response",
+      "success",
+      "error",
+      "repetition",
+      "difficulty_changed",
+      "pause",
+      "resume",
+      "game_completed",
+      "session_completed",
+      "calibration_completed",
+      "tracking_lost",
+      "tracking_restored"
+    ]
+  },
+  "development": {
+    "lifecycle": {
+      "specificationCreated": true,
+      "promptGenerated": false,
+      "htmlGenerated": false,
+      "developerReviewed": false,
+      "edited": false,
+      "localTest": false,
+      "technicalValidation": false,
+      "clinicalTest": false,
+      "approved": false,
+      "hosted": false,
+      "integratedIntoRemotion": false,
+      "published": false
+    },
+    "owner": "Ahmed Nabli",
+    "hostingUrl": "",
+    "repositoryUrl": "",
+    "remotionModuleId": "",
+    "notes": "Example specification for testing the Remotion Game Factory import, editing, history and export workflow."
+  }
+}
